@@ -1,0 +1,27 @@
+{
+  "name": "ave-auth-matrix-dapp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "compile": "node scripts/compile-contracts.mjs",
+    "build": "npm run compile && vite build",
+    "preview": "vite preview",
+    "test": "node --test",
+    "deploy:github-pages": "npm run build && gh-pages -d dist",
+    "deploy:cloudflare": "node scripts/deploy-cloudflare.mjs"
+  },
+  "dependencies": {
+    "ethers": "6.16.0"
+  },
+  "devDependencies": {
+    "gh-pages": "6.3.0",
+    "solc": "0.8.35",
+    "vite": "8.0.16",
+    "wrangler": "4.63.0"
+  },
+  "overrides": {
+    "ws": "8.20.1"
+  }
+}
