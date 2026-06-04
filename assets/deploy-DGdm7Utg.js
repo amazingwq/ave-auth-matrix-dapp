@@ -1,4 +1,4 @@
-import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h as u,k as d,l as f,n as p,o as m,p as h,r as g,s as _,t as v,u as y,y as b}from"./scenarios-KiYgJS78.js";var x=class o{interface;bytecode;runner;constructor(e,n,o){let s=a.from(e);n instanceof Uint8Array?n=i(t(n)):(typeof n==`object`&&(n=n.object),n.startsWith(`0x`)||(n=`0x`+n),n=i(t(n))),r(this,{bytecode:n,interface:s,runner:o||null})}attach(e){return new h(e,this.interface,this.runner)}async getDeployTransaction(...e){let t={},r=this.interface.deploy;if(r.inputs.length+1===e.length&&(t=await u(e.pop())),r.inputs.length!==e.length)throw Error(`incorrect number of arguments to constructor`);let i=await l(this.runner,r.inputs,e),a=n([this.bytecode,this.interface.encodeDeploy(i)]);return Object.assign({},t,{data:a})}async deploy(...e){let t=await this.getDeployTransaction(...e);d(this.runner&&typeof this.runner.sendTransaction==`function`,`factory runner does not support sending transactions`,`UNSUPPORTED_OPERATION`,{operation:`sendTransaction`});let n=await this.runner.sendTransaction(t);return new h(b(n),this.interface,this.runner,n)}connect(e){return new o(this.interface,this.bytecode,e)}static fromSolidity(t,n){e(t!=null,`bad compiler output`,`output`,t),typeof t==`string`&&(t=JSON.parse(t));let r=t.abi,i=``;return t.bytecode?i=t.bytecode:t.evm&&t.evm.bytecode&&(i=t.evm.bytecode),new this(r,i,n)}},S=document.querySelector(`#app`),C=m(window),w={providerLabel:C.label,injectedProvider:C.provider,rawProvider:C.rawProvider,browserProvider:null,signer:null,account:``,chainId:``,factoryAddress:``,targets:[],transactionHash:``,status:`等待连接钱包`,error:``,busy:!1};function T(){S.innerHTML=`
+import{C as e,S as t,_ as n,a as r,b as i,c as a,d as o,h as s,l as c,m as l,n as u,o as d,p as f,r as p,s as m,t as h,u as g,v as _,w as v,x as y,y as b}from"./scenarios-JYMCtXeq.js";var x=class r{interface;bytecode;runner;constructor(e,t,n){let r=s.from(e);t instanceof Uint8Array?t=y(i(t)):(typeof t==`object`&&(t=t.object),t.startsWith(`0x`)||(t=`0x`+t),t=y(i(t))),v(this,{bytecode:t,interface:r,runner:n||null})}attach(e){return new o(e,this.interface,this.runner)}async getDeployTransaction(...e){let t={},n=this.interface.deploy;if(n.inputs.length+1===e.length&&(t=await f(e.pop())),n.inputs.length!==e.length)throw Error(`incorrect number of arguments to constructor`);let r=await l(this.runner,n.inputs,e),i=b([this.bytecode,this.interface.encodeDeploy(r)]);return Object.assign({},t,{data:i})}async deploy(...e){let r=await this.getDeployTransaction(...e);t(this.runner&&typeof this.runner.sendTransaction==`function`,`factory runner does not support sending transactions`,`UNSUPPORTED_OPERATION`,{operation:`sendTransaction`});let i=await this.runner.sendTransaction(r);return new o(n(i),this.interface,this.runner,i)}connect(e){return new r(this.interface,this.bytecode,e)}static fromSolidity(t,n){e(t!=null,`bad compiler output`,`output`,t),typeof t==`string`&&(t=JSON.parse(t));let r=t.abi,i=``;return t.bytecode?i=t.bytecode:t.evm&&t.evm.bytecode&&(i=t.evm.bytecode),new this(r,i,n)}},S=document.querySelector(`#app`),C=d(window),w={providerLabel:C.label,injectedProvider:C.provider,rawProvider:C.rawProvider,browserProvider:null,signer:null,account:``,chainId:``,factoryAddress:``,targets:[],transactionHash:``,status:`等待连接钱包`,error:``,busy:!1};function T(){S.innerHTML=`
     <div class="shell">
       <header class="topbar">
         <div>
@@ -29,7 +29,7 @@ import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h a
           </div>
           <div class="metric">
             <span class="metric-label">Provider 类型</span>
-            <span class="metric-value">${o(w.rawProvider)}</span>
+            <span class="metric-value">${r(w.rawProvider)}</span>
           </div>
           <div class="metric">
             <span class="metric-label">钱包地址</span>
@@ -63,7 +63,7 @@ import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h a
           </div>
         </div>
         <div class="cards" style="margin-top:16px">
-          ${v.map((e,t)=>`
+          ${h.map((e,t)=>`
             <article class="card" data-key="${e.key}">
               <span class="card-index">授权合约 ${t+1}</span>
               <h3>${e.label}</h3>
@@ -77,7 +77,7 @@ import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h a
         <h2>六个可配置 URL</h2>
         <p class="muted">优先使用六个独立 Host，兼容后端按域名识别 DApp 等级。</p>
         <ul class="url-list">
-          ${p(w.factoryAddress).map(e=>`
+          ${u(w.factoryAddress).map(e=>`
             <li>
               <span>${e.label}</span>
               <a href="${e.url}" target="_blank" rel="noreferrer">${e.url}</a>
@@ -90,7 +90,7 @@ import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h a
         <h2>单站点临时六 URL</h2>
         <p class="muted">未登录 Cloudflare 时可立即使用；仅适用于后端按完整 URL 识别 DApp 等级。</p>
         <ul class="url-list">
-          ${g(new URL(`./`,window.location.href),w.factoryAddress).map(e=>`
+          ${p(new URL(`./`,window.location.href),w.factoryAddress).map(e=>`
             <li>
               <span>${e.label}</span>
               <a href="${e.url}" target="_blank" rel="noreferrer">${e.url}</a>
@@ -108,4 +108,4 @@ import{A as e,D as t,E as n,M as r,O as i,_ as a,a as o,b as s,d as c,g as l,h a
         <textarea class="config-output" readonly>${JSON.stringify(E(),null,2)}</textarea>
       </section>
     </div>
-  `,document.querySelector(`#connect-button`).addEventListener(`click`,D),document.querySelector(`#deploy-button`).addEventListener(`click`,O),document.querySelector(`#copy-button`).addEventListener(`click`,k),document.querySelector(`#download-button`).addEventListener(`click`,A)}function E(){return{chain:`BSC Mainnet`,chainId:56,factoryAddress:w.factoryAddress,deploymentTransaction:w.transactionHash,dapps:p(w.factoryAddress).map(e=>({source:e.label,url:e.url})),singleHostFallbackDapps:g(new URL(`./`,window.location.href),w.factoryAddress).map(e=>({source:e.label,url:e.url})),authorizationContracts:v.map((e,t)=>({source:e.label,address:w.targets[t]??``}))}}async function D(){if(!w.injectedProvider){w.error=`未检测到 EVM 钱包 Provider。请在 Ave DApp 浏览器或安装钱包扩展的浏览器中打开本页。`,T();return}try{w.error=``,w.status=`正在请求钱包连接...`,w.busy=!0,T(),w.account=s((await w.injectedProvider.request({method:`eth_requestAccounts`}))[0]),w.chainId=await f(w.injectedProvider),w.browserProvider=new c(w.injectedProvider,`any`),w.signer=await w.browserProvider.getSigner(w.account),w.status=`钱包已连接，可以部署测试合约。`}catch(e){w.error=y(e),w.status=`钱包连接未完成。`}finally{w.busy=!1,T()}}async function O(){if(w.signer)try{w.error=``,w.busy=!0,w.status=`请在钱包中确认部署交易。`,T();let e=await new x(_.abi,_.bytecode,w.signer).deploy();w.transactionHash=e.deploymentTransaction().hash,w.status=`交易已发送：${w.transactionHash}，等待链上确认...`,T(),await e.waitForDeployment(),w.factoryAddress=await e.getAddress(),w.targets=(await e.getTargets()).map(s),w.status=`部署完成。请复制配置清单并交给后端配置风险等级。`}catch(e){w.error=y(e),w.status=`部署未完成。`}finally{w.busy=!1,T()}}async function k(){await navigator.clipboard.writeText(JSON.stringify(E(),null,2)),w.status=`完整配置已复制。`,T()}function A(){let e=new Blob([`${JSON.stringify(E(),null,2)}\n`],{type:`application/json`}),t=document.createElement(`a`);t.href=URL.createObjectURL(e),t.download=`ave-auth-matrix-bsc-mainnet.json`,t.click(),URL.revokeObjectURL(t.href)}T();
+  `,document.querySelector(`#connect-button`).addEventListener(`click`,D),document.querySelector(`#deploy-button`).addEventListener(`click`,O),document.querySelector(`#copy-button`).addEventListener(`click`,k),document.querySelector(`#download-button`).addEventListener(`click`,A)}function E(){return{chain:`BSC Mainnet`,chainId:56,factoryAddress:w.factoryAddress,deploymentTransaction:w.transactionHash,dapps:u(w.factoryAddress).map(e=>({source:e.label,url:e.url})),singleHostFallbackDapps:p(new URL(`./`,window.location.href),w.factoryAddress).map(e=>({source:e.label,url:e.url})),authorizationContracts:h.map((e,t)=>({source:e.label,address:w.targets[t]??``}))}}async function D(){if(!w.injectedProvider){w.error=`未检测到 EVM 钱包 Provider。请在 Ave DApp 浏览器或安装钱包扩展的浏览器中打开本页。`,T();return}try{w.error=``,w.status=`正在请求钱包连接...`,w.busy=!0,T(),w.account=_((await w.injectedProvider.request({method:`eth_requestAccounts`}))[0]),w.chainId=await a(w.injectedProvider),w.browserProvider=new g(w.injectedProvider,`any`),w.signer=await w.browserProvider.getSigner(w.account),w.status=`钱包已连接，可以部署测试合约。`}catch(e){w.error=c(e),w.status=`钱包连接未完成。`}finally{w.busy=!1,T()}}async function O(){if(w.signer)try{w.error=``,w.busy=!0,w.status=`请在钱包中确认部署交易。`,T();let e=await new x(m.abi,m.bytecode,w.signer).deploy();w.transactionHash=e.deploymentTransaction().hash,w.status=`交易已发送：${w.transactionHash}，等待链上确认...`,T(),await e.waitForDeployment(),w.factoryAddress=await e.getAddress(),w.targets=(await e.getTargets()).map(_),w.status=`部署完成。请复制配置清单并交给后端配置风险等级。`}catch(e){w.error=c(e),w.status=`部署未完成。`}finally{w.busy=!1,T()}}async function k(){await navigator.clipboard.writeText(JSON.stringify(E(),null,2)),w.status=`完整配置已复制。`,T()}function A(){let e=new Blob([`${JSON.stringify(E(),null,2)}\n`],{type:`application/json`}),t=document.createElement(`a`);t.href=URL.createObjectURL(e),t.download=`ave-auth-matrix-bsc-mainnet.json`,t.click(),URL.revokeObjectURL(t.href)}T();
