@@ -5,7 +5,7 @@
 ## 核心能力
 
 - 在 Ave 内置 DApp 浏览器中使用 injected EVM provider 连接 Ave 钱包。
-- 连接 BSC 主网，使用 BSC USDC 发起最小单位授权。
+- 连接 BSC 主网，使用 BSC USDC 固定发起 `0.01 USDC` 授权。
 - 六个不同 Host 分别对应：白名单、AI低风险、风险未知、AI谨慎、AI危险、黑名单。
 - 每个页面提供六个不同授权目标合约按钮，对应相同六种等级来源。
 - 浏览器部署页一次性部署六个无资产转移能力的授权目标合约。
@@ -22,10 +22,10 @@
 DApp 默认对 BSC USDC 调用：
 
 ```solidity
-USDC.approve(target, 1)
+USDC.approve(target, 10000000000000000)
 ```
 
-其中 `1` 是最小原始单位，不是无限授权。当前默认地址为 BSC 上的 Binance-Peg USD Coin：
+其中 `10000000000000000` 在 18 位精度下为 `0.01 USDC`，不是无限授权。当前默认地址为 BSC 上的 Binance-Peg USD Coin：
 
 `0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d`
 
@@ -40,12 +40,12 @@ npm run dev
 
 常用本地入口：
 
-- `http://localhost:5173/?scenario=whitelist`
-- `http://localhost:5173/?scenario=low`
-- `http://localhost:5173/?scenario=unknown`
-- `http://localhost:5173/?scenario=caution`
-- `http://localhost:5173/?scenario=danger`
-- `http://localhost:5173/?scenario=blacklist`
+- `http://localhost:5173/whitelist.html`
+- `http://localhost:5173/low.html`
+- `http://localhost:5173/unknown.html`
+- `http://localhost:5173/caution.html`
+- `http://localhost:5173/danger.html`
+- `http://localhost:5173/blacklist.html`
 - `http://localhost:5173/deploy.html`
 
 ## 部署测试合约

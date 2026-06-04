@@ -15,7 +15,7 @@ test("detects scenario from dedicated Cloudflare hostname", () => {
 test("detects scenario from path for local and fallback hosting", () => {
   const scenario = detectScenario({
     hostname: "localhost",
-    pathname: "/caution/",
+    pathname: "/caution.html",
     search: ""
   });
 
@@ -47,5 +47,6 @@ test("generates six single-host fallback URLs", () => {
 
   assert.equal(urls.length, 6);
   assert.equal(new Set(urls.map((entry) => entry.url)).size, 6);
+  assert.ok(urls.every((entry) => entry.url.includes(".html")));
   assert.ok(urls.every((entry) => entry.url.includes(`factory=${factory}`)));
 });

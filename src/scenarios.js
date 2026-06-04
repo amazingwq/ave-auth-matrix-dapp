@@ -55,7 +55,11 @@ export const TARGET_SCENARIOS = [
 export function detectScenario(locationLike) {
   const queryScenario = new URLSearchParams(locationLike.search ?? "").get("scenario");
   const hostScenario = DAPP_SCENARIOS.find((scenario) => scenario.host === locationLike.hostname);
-  const pathKey = (locationLike.pathname ?? "").split("/").filter(Boolean)[0];
+  const pathKey = (locationLike.pathname ?? "")
+    .split("/")
+    .filter(Boolean)
+    .at(-1)
+    ?.replace(/\.html$/, "");
   const pathScenario = DAPP_SCENARIOS.find((scenario) => scenario.key === pathKey);
   const requested = DAPP_SCENARIOS.find((scenario) => scenario.key === queryScenario);
 
@@ -72,8 +76,7 @@ export function buildDappUrls(factoryAddress = "") {
 
 export function buildSingleHostDappUrls(baseUrl, factoryAddress = "") {
   return DAPP_SCENARIOS.map((scenario) => {
-    const url = new URL(baseUrl);
-    url.searchParams.set("scenario", scenario.key);
+    const url = new URL(`${scenario.key}.html`, baseUrl);
     if (factoryAddress) url.searchParams.set("factory", factoryAddress);
     return {
       ...scenario,
