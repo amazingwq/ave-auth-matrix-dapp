@@ -11,6 +11,7 @@ const discovered = discoverProvider(window);
 const state = {
   providerLabel: discovered.label,
   injectedProvider: discovered.provider,
+  rawProvider: discovered.rawProvider,
   browserProvider: null,
   signer: null,
   account: "",
@@ -55,7 +56,7 @@ function render() {
           </div>
           <div class="metric">
             <span class="metric-label">Provider 类型</span>
-            <span class="metric-value">${describeProvider(window.ethereum ?? window.web3?.currentProvider)}</span>
+            <span class="metric-value">${describeProvider(state.rawProvider)}</span>
           </div>
           <div class="metric">
             <span class="metric-label">钱包地址</span>

@@ -57,11 +57,11 @@ export function discoverProvider(windowLike = window) {
   for (const [label, candidate] of candidates) {
     const provider = normalizeProvider(candidate);
     if (provider) {
-      return { label, provider };
+      return { label, provider, rawProvider: candidate };
     }
   }
 
-  return { label: "未检测到", provider: null };
+  return { label: "未检测到", provider: null, rawProvider: null };
 }
 
 export function describeProvider(rawProvider) {

@@ -31,6 +31,7 @@ const readProvider = new JsonRpcProvider(BSC_MAINNET.rpcUrls[0], BSC_MAINNET.cha
 const state = {
   providerLabel: discovered.label,
   injectedProvider: discovered.provider,
+  rawProvider: discovered.rawProvider,
   browserProvider: null,
   signer: null,
   account: "",
@@ -265,9 +266,7 @@ function renderDiagnostics() {
   if (!found) return;
 
   found.textContent = state.injectedProvider ? `已检测到：${state.providerLabel}` : "未检测到";
-  document.querySelector("#provider-type").textContent = describeProvider(
-    window.ethereum ?? window.web3?.currentProvider
-  );
+  document.querySelector("#provider-type").textContent = describeProvider(state.rawProvider);
   document.querySelector("#last-request").textContent = state.lastRequest;
   document.querySelector("#last-error").textContent = state.lastError || "无";
 
