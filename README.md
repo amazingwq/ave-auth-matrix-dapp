@@ -46,12 +46,12 @@ npm run dev
 - `http://localhost:5173/caution.html`
 - `http://localhost:5173/danger.html`
 - `http://localhost:5173/blacklist.html`
-- `http://localhost:5173/deploy.html`
+- `http://localhost:5173/deploy-36.html`
 
 ## 部署测试合约
 
 1. 先将站点发布到任意 HTTPS 测试地址。
-2. 在安装 EVM 钱包的浏览器或 Ave DApp 浏览器中打开 `/deploy.html`。
+2. 在安装 EVM 钱包的浏览器或 Ave DApp 浏览器中打开 `/deploy-36.html`。
 3. 点击「连接钱包」，切换到 BSC 主网。
 4. 点击「部署 Factory 与 36 个合约」，在钱包内确认一次部署交易。
 5. 部署完成后复制或下载页面生成的完整配置。

@@ -8,6 +8,7 @@ export default defineConfig({
       input: {
         app: resolve(import.meta.dirname, "index.html"),
         deploy: resolve(import.meta.dirname, "deploy.html"),
+        deploy36: resolve(import.meta.dirname, "deploy-36.html"),
         whitelist: resolve(import.meta.dirname, "whitelist.html"),
         low: resolve(import.meta.dirname, "low.html"),
         unknown: resolve(import.meta.dirname, "unknown.html"),
