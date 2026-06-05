@@ -516,6 +516,23 @@ body:has(.simple-shell) {
   line-height: 1.5;
 }
 
+.debug-box {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #334056;
+  border-radius: 10px;
+  background: #0d1118;
+  color: #8995a7;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.debug-box strong {
+  color: #c9d4e5;
+}
+
 .section-heading {
   display: flex;
   align-items: flex-start;

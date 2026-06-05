@@ -2,7 +2,7 @@ import { BrowserProvider, Contract, getAddress } from "ethers";
 import "./base.css";
 import { ensureBsc, readableError } from "./chain.js";
 import { loadDeployment } from "./deployment.js";
-import { discoverProvider, waitForProvider } from "./provider.js";
+import { discoverProvider, getProviderDebugInfo, waitForProvider } from "./provider.js";
 import {
   MATRIX_TARGET_COUNT,
   TARGET_SCENARIOS,
@@ -22,7 +22,8 @@ const state = {
   deployment: null,
   busyIndex: null,
   statuses: Array(6).fill("等待连接钱包"),
-  error: ""
+  error: "",
+  debugInfo: null
 };
 
 function shortAddress(address) {
@@ -52,6 +53,7 @@ function render() {
           ${state.account ? "已连接 ✓" : "连接 Ave 钱包"}
         </button>
         ${state.error ? `<p class="inline-error">${state.error}</p>` : ""}
+        ${state.debugInfo ? renderDebugInfo() : ""}
       </section>
 
       <section class="approval-section">
@@ -76,6 +78,17 @@ function render() {
   document.querySelectorAll(".approve-button").forEach((button) => {
     button.addEventListener("click", () => approve(Number(button.dataset.index)));
   });
+}
+
+function renderDebugInfo() {
+  return `
+    <div class="debug-box">
+      <strong>钱包检测信息</strong>
+      <span>已发现对象：${state.debugInfo.detected.join(", ") || "无"}</span>
+      <span>疑似 Provider：${state.debugInfo.providerLike.join(", ") || "无"}</span>
+      <span>${state.debugInfo.userAgent}</span>
+    </div>
+  `;
 }
 
 function renderCard(target, index) {
@@ -125,6 +138,7 @@ async function initialize() {
 
 async function connectWallet() {
   state.error = "";
+  state.debugInfo = null;
   render();
 
   const latestProvider = await waitForProvider(window);
@@ -132,6 +146,7 @@ async function connectWallet() {
 
   if (!state.injectedProvider) {
     state.error = "未检测到钱包 Provider。请确认在 Ave DApp 浏览器中打开本页；如果刚进入页面，请刷新后再点连接。";
+    state.debugInfo = getProviderDebugInfo(window);
     render();
     return;
   }

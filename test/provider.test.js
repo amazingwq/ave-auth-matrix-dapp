@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { discoverProvider, normalizeProvider, waitForProvider } from "../src/provider.js";
+import {
+  discoverEip6963Provider,
+  discoverProvider,
+  getProviderDebugInfo,
+  normalizeProvider,
+  waitForProvider
+} from "../src/provider.js";
 
 test("discovers standard EIP-1193 provider", async () => {
   const ethereum = {
@@ -48,6 +54,53 @@ test("discovers provider from ethereum.providers array", async () => {
   assert.equal(discovered.rawProvider, aveProvider);
 });
 
+test("discovers provider from unknown wallet-like global", async () => {
+  const windowLike = {
+    aveInjectedProvider: {
+      async request({ method }) {
+        return method;
+      }
+    }
+  };
+
+  const discovered = discoverProvider(windowLike);
+
+  assert.equal(discovered.label, "window.aveInjectedProvider");
+});
+
+test("discovers EIP-6963 provider announcements", async () => {
+  const listeners = new Map();
+  const provider = {
+    async request({ method }) {
+      return method;
+    }
+  };
+  const windowLike = {
+    addEventListener(name, handler) {
+      listeners.set(name, handler);
+    },
+    removeEventListener(name) {
+      listeners.delete(name);
+    },
+    dispatchEvent(event) {
+      if (event.type !== "eip6963:requestProvider") return;
+      setTimeout(() => {
+        listeners.get("eip6963:announceProvider")?.({
+          detail: {
+            info: { name: "Ave Wallet", uuid: "ave" },
+            provider
+          }
+        });
+      }, 0);
+    }
+  };
+
+  const discovered = await discoverEip6963Provider(windowLike, 20);
+
+  assert.equal(discovered.label, "EIP-6963:Ave Wallet");
+  assert.equal(discovered.rawProvider, provider);
+});
+
 test("waits for async provider injection", async () => {
   const windowLike = {
     ethereum: undefined,
@@ -69,4 +122,18 @@ test("waits for async provider injection", async () => {
 
 test("returns null for objects without an RPC request method", () => {
   assert.equal(normalizeProvider({}), null);
+});
+
+test("returns provider debug info", () => {
+  const debugInfo = getProviderDebugInfo({
+    ethereum: {},
+    aveFooProvider: {
+      async request() {}
+    },
+    navigator: { userAgent: "Ave Test" }
+  });
+
+  assert.deepEqual(debugInfo.detected, ["ethereum"]);
+  assert.deepEqual(debugInfo.providerLike, ["window.aveFooProvider"]);
+  assert.equal(debugInfo.userAgent, "Ave Test");
 });

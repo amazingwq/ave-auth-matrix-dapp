@@ -60,8 +60,16 @@ export function discoverProvider(windowLike = window) {
     ["window.aveWallet.ethereum", windowLike.aveWallet?.ethereum],
     ["window.ave.ethereum", windowLike.ave?.ethereum],
     ["window.BinanceChain", windowLike.BinanceChain],
-    ["window.trustwallet", windowLike.trustwallet]
+    ["window.trustwallet", windowLike.trustwallet],
+    ["window.okxwallet", windowLike.okxwallet],
+    ["window.okxwallet.ethereum", windowLike.okxwallet?.ethereum],
+    ["window.bitkeep.ethereum", windowLike.bitkeep?.ethereum],
+    ["window.tokenpocket.ethereum", windowLike.tokenpocket?.ethereum],
+    ["window.ethereumProvider", windowLike.ethereumProvider],
+    ["window.web3Provider", windowLike.web3Provider]
   ];
+
+  candidates.push(...discoverWindowProviderCandidates(windowLike));
 
   for (const [label, candidate] of candidates) {
     const provider = normalizeProvider(candidate);
@@ -78,15 +86,125 @@ export async function waitForProvider(windowLike = window, options = {}) {
   const intervalMs = options.intervalMs ?? 120;
   const startedAt = Date.now();
   let discovered = discoverProvider(windowLike);
+  if (discovered.provider) return discovered;
+
+  discovered = await discoverEip6963Provider(windowLike, Math.min(800, timeoutMs));
+  if (discovered.provider) return discovered;
 
   while (!discovered.provider && Date.now() - startedAt < timeoutMs) {
     await new Promise((resolve) => {
       windowLike.setTimeout?.(resolve, intervalMs) ?? setTimeout(resolve, intervalMs);
     });
     discovered = discoverProvider(windowLike);
+    if (discovered.provider) break;
+    discovered = await discoverEip6963Provider(windowLike, 80);
   }
 
   return discovered;
+}
+
+export async function discoverEip6963Provider(windowLike = window, timeoutMs = 300) {
+  if (
+    typeof windowLike.addEventListener !== "function" ||
+    typeof windowLike.removeEventListener !== "function" ||
+    typeof windowLike.dispatchEvent !== "function"
+  ) {
+    return { label: "未检测到", provider: null, rawProvider: null };
+  }
+
+  const announcements = [];
+  const onAnnouncement = (event) => {
+    if (event?.detail?.provider) announcements.push(event.detail);
+  };
+
+  windowLike.addEventListener("eip6963:announceProvider", onAnnouncement);
+  try {
+    windowLike.dispatchEvent(new Event("eip6963:requestProvider"));
+    await new Promise((resolve) => setTimeout(resolve, timeoutMs));
+  } finally {
+    windowLike.removeEventListener("eip6963:announceProvider", onAnnouncement);
+  }
+
+  const selected =
+    announcements.find((item) => /ave/i.test(item.info?.name ?? "")) ?? announcements[0];
+  const provider = normalizeProvider(selected?.provider);
+  if (!provider) return { label: "未检测到", provider: null, rawProvider: null };
+
+  return {
+    label: `EIP-6963:${selected.info?.name ?? selected.info?.uuid ?? "wallet"}`,
+    provider,
+    rawProvider: selected.provider
+  };
+}
+
+export function getProviderDebugInfo(windowLike = window) {
+  const names = [
+    "ethereum",
+    "web3",
+    "ave",
+    "aveEthereum",
+    "aveWallet",
+    "ethereumProvider",
+    "web3Provider",
+    "BinanceChain",
+    "trustwallet",
+    "okxwallet",
+    "bitkeep",
+    "tokenpocket"
+  ];
+  const detected = names.filter((name) => Boolean(safeRead(windowLike, name)));
+  const providerLike = discoverWindowProviderCandidates(windowLike).map(([label]) => label);
+  return {
+    detected,
+    providerLike: [...new Set(providerLike)].slice(0, 12),
+    userAgent: windowLike.navigator?.userAgent ?? ""
+  };
+}
+
+function discoverWindowProviderCandidates(windowLike) {
+  const labels = [];
+  const seen = new Set();
+  const properties = safeOwnPropertyNames(windowLike);
+  const keywords = /(ethereum|web3|provider|wallet|ave|trust|okx|bitkeep|token|binance|bnb)/i;
+
+  for (const property of properties) {
+    if (!keywords.test(property)) continue;
+    const value = safeRead(windowLike, property);
+    pushProviderCandidate(labels, seen, `window.${property}`, value);
+  }
+
+  return labels;
+}
+
+function pushProviderCandidate(labels, seen, label, value) {
+  if (!value || typeof value !== "object" || seen.has(value)) return;
+  seen.add(value);
+
+  if (normalizeProvider(value)) labels.push([label, value]);
+
+  for (const childKey of ["ethereum", "provider", "currentProvider", "web3Provider"]) {
+    const child = safeRead(value, childKey);
+    if (child && typeof child === "object" && !seen.has(child)) {
+      if (normalizeProvider(child)) labels.push([`${label}.${childKey}`, child]);
+      seen.add(child);
+    }
+  }
+}
+
+function safeOwnPropertyNames(value) {
+  try {
+    return Object.getOwnPropertyNames(value);
+  } catch {
+    return [];
+  }
+}
+
+function safeRead(value, property) {
+  try {
+    return value?.[property];
+  } catch {
+    return undefined;
+  }
 }
 
 export function describeProvider(rawProvider) {
