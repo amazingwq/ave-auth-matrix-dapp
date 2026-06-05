@@ -6,13 +6,6 @@
     "decimals": 18,
     "approvalRawAmount": "10000000000000000"
   },
-  "factoryAddress": "0x0e0CA7b58c5d4D02B958e78c0B9c6bb9A0063C2c",
-  "targets": [
-    "0xb8edecc506333c5337036fF0800572246468AFf9",
-    "0x1Cdb1474855445b271704C9fE74D090ea1E19069",
-    "0x31ba7D41A8b40E483428B93156faB2897F225ba5",
-    "0x1Dcc4D4009116E1Eceb11e9b1CA2357d978E8C1A",
-    "0x2101Eea408b1855EAC05DDdB1f831557FF4C24cE",
-    "0x58430A64307E52d4606812D605Fb3a5331b20d99"
-  ]
+  "factoryAddress": "",
+  "targets": []
 }
