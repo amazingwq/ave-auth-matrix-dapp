@@ -11,7 +11,7 @@ export async function loadDeployment(provider) {
   const factoryFromQuery = new URLSearchParams(window.location.search).get("factory");
   const factoryAddress = factoryFromQuery || deployment.factoryAddress;
 
-  if (deployment.targets?.length === 6) {
+  if (deployment.targets?.length > 0) {
     return {
       ...deployment,
       factoryAddress,

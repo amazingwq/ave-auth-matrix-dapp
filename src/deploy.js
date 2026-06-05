@@ -3,7 +3,14 @@ import "./base.css";
 import factoryArtifact from "./generated/ApprovalMatrixFactory.json";
 import { ensureBsc, readableError } from "./chain.js";
 import { describeProvider, discoverProvider } from "./provider.js";
-import { TARGET_SCENARIOS, buildDappUrls, buildSingleHostDappUrls } from "./scenarios.js";
+import {
+  DAPP_SCENARIOS,
+  MATRIX_TARGET_COUNT,
+  TARGET_SCENARIOS,
+  buildDappUrls,
+  buildSingleHostDappUrls,
+  matrixRows
+} from "./scenarios.js";
 
 const root = document.querySelector("#app");
 const discovered = discoverProvider(window);
@@ -30,7 +37,7 @@ function render() {
       <header class="topbar">
         <div>
           <p class="eyebrow">Ave Authorization Matrix</p>
-          <h1>部署六个安全测试授权合约</h1>
+          <h1>部署 36 个安全测试授权合约</h1>
           <p class="muted">部署只需要一次交易。页面不会读取、上传或保存钱包私钥。</p>
         </div>
         <a class="ghost" href="./" style="display:inline-flex;align-items:center;text-decoration:none">返回测试 DApp</a>
@@ -39,11 +46,11 @@ function render() {
       <section class="panel hero">
         <h2>部署说明</h2>
         <p>
-          Factory 会在 BSC 主网一次性创建六个不可升级的空目标合约。目标合约只有公开标签，
+          Factory 会在 BSC 主网一次性创建 36 个不可升级的空目标合约。目标合约只有公开标签，
           没有 <code>transferFrom</code>、管理员执行或资产转移能力。
         </p>
         <p class="notice">
-          部署需要少量 BNB Gas。部署完成后，请把本页生成的六个 URL 和六个授权合约地址交给后端配置。
+          部署需要少量 BNB Gas。部署完成后，请把本页生成的六个 URL 和 36 个授权合约地址交给后端配置。
         </p>
       </section>
 
@@ -70,7 +77,7 @@ function render() {
         <div class="actions">
           <button class="primary" id="connect-button" ${state.busy ? "disabled" : ""}>连接钱包</button>
           <button class="secondary" id="deploy-button" ${state.signer && !state.busy ? "" : "disabled"}>
-            ${state.busy ? "正在部署..." : "部署 Factory 与六个合约"}
+            ${state.busy ? "正在部署..." : "部署 Factory 与 36 个合约"}
           </button>
         </div>
         <p class="notice">${state.status}</p>
@@ -93,13 +100,19 @@ function render() {
             }</span>
           </div>
         </div>
-        <div class="cards" style="margin-top:16px">
-          ${TARGET_SCENARIOS.map((target, index) => `
-            <article class="card" data-key="${target.key}">
-              <span class="card-index">授权合约 ${index + 1}</span>
-              <h3>${target.label}</h3>
-              <p class="address">${state.targets[index] ?? "尚未部署"}</p>
-            </article>
+        <div class="matrix-groups" style="margin-top:16px">
+          ${matrixRows(state.targets).map((row) => `
+            <section class="matrix-group">
+              <h3>${row.label} DApp</h3>
+              <div class="cards">
+                ${row.contracts.map((target) => `
+                  <article class="card" data-key="${target.key}">
+                    <span class="card-index">${target.label}授权</span>
+                    <p class="address">${target.address || "尚未部署"}</p>
+                  </article>
+                `).join("")}
+              </div>
+            </section>
           `).join("")}
         </div>
       </section>
@@ -164,10 +177,15 @@ function buildConfig() {
       source: item.label,
       url: item.url
     })),
-    authorizationContracts: TARGET_SCENARIOS.map((target, index) => ({
-      source: target.label,
-      address: state.targets[index] ?? ""
-    }))
+    authorizationContracts: matrixRows(state.targets).flatMap((row) =>
+      row.contracts.map((target) => ({
+        dappSource: row.label,
+        dappUrl: buildSingleHostDappUrls(new URL("./", window.location.href), state.factoryAddress)
+          .find((item) => item.key === row.key)?.url,
+        contractSource: target.label,
+        address: target.address
+      }))
+    )
   };
 }
 
@@ -218,7 +236,10 @@ async function deploy() {
     state.factoryAddress = await contract.getAddress();
     const targets = await contract.getTargets();
     state.targets = targets.map(getAddress);
-    state.status = "部署完成。请复制配置清单并交给后端配置风险等级。";
+    if (state.targets.length !== MATRIX_TARGET_COUNT) {
+      throw new Error(`部署结果数量异常：预期 ${MATRIX_TARGET_COUNT} 个，实际 ${state.targets.length} 个`);
+    }
+    state.status = "36 个合约部署完成。请复制配置清单并交给后端配置风险等级。";
   } catch (error) {
     state.error = readableError(error);
     state.status = "部署未完成。";

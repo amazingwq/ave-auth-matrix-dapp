@@ -10,20 +10,39 @@ contract ApprovalTarget {
     }
 }
 
-/// @notice Deploys all six immutable approval targets in one transaction.
+/// @notice Deploys all 36 immutable approval targets in one transaction.
 contract ApprovalMatrixFactory {
-    address[6] private _targets;
+    address[36] private _targets;
 
     constructor() {
-        _targets[0] = address(new ApprovalTarget("whitelist"));
-        _targets[1] = address(new ApprovalTarget("ai-low-risk"));
-        _targets[2] = address(new ApprovalTarget("unknown"));
-        _targets[3] = address(new ApprovalTarget("ai-caution"));
-        _targets[4] = address(new ApprovalTarget("ai-danger"));
-        _targets[5] = address(new ApprovalTarget("blacklist"));
+        string[6] memory dappLabels = [
+            "dapp-whitelist",
+            "dapp-ai-low-risk",
+            "dapp-unknown",
+            "dapp-ai-caution",
+            "dapp-ai-danger",
+            "dapp-blacklist"
+        ];
+        string[6] memory authLabels = [
+            "auth-whitelist",
+            "auth-ai-low-risk",
+            "auth-unknown",
+            "auth-ai-caution",
+            "auth-ai-danger",
+            "auth-blacklist"
+        ];
+
+        for (uint256 dappIndex = 0; dappIndex < 6; dappIndex++) {
+            for (uint256 authIndex = 0; authIndex < 6; authIndex++) {
+                uint256 matrixIndex = dappIndex * 6 + authIndex;
+                _targets[matrixIndex] = address(
+                    new ApprovalTarget(string.concat(dappLabels[dappIndex], "-", authLabels[authIndex]))
+                );
+            }
+        }
     }
 
-    function getTargets() external view returns (address[6] memory) {
+    function getTargets() external view returns (address[36] memory) {
         return _targets;
     }
 }

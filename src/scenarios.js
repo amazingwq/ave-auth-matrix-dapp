@@ -52,6 +52,27 @@ export const TARGET_SCENARIOS = [
   { key: "blacklist", label: "黑名单", description: "后台黑名单，隐藏检测报告并禁止授权" }
 ];
 
+export const MATRIX_TARGET_COUNT = DAPP_SCENARIOS.length * TARGET_SCENARIOS.length;
+
+export function scenarioIndex(scenario) {
+  return DAPP_SCENARIOS.findIndex((entry) => entry.key === scenario.key);
+}
+
+export function matrixTargetIndex(scenario, targetIndex) {
+  const dappIndex = scenarioIndex(scenario);
+  return dappIndex < 0 ? targetIndex : dappIndex * TARGET_SCENARIOS.length + targetIndex;
+}
+
+export function matrixRows(targets = []) {
+  return DAPP_SCENARIOS.map((dapp, dappIndex) => ({
+    ...dapp,
+    contracts: TARGET_SCENARIOS.map((target, targetIndex) => ({
+      ...target,
+      address: targets[dappIndex * TARGET_SCENARIOS.length + targetIndex] ?? ""
+    }))
+  }));
+}
+
 export function detectScenario(locationLike) {
   const queryScenario = new URLSearchParams(locationLike.search ?? "").get("scenario");
   const hostScenario = DAPP_SCENARIOS.find((scenario) => scenario.host === locationLike.hostname);

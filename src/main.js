@@ -3,7 +3,12 @@ import "./base.css";
 import { ensureBsc, readableError } from "./chain.js";
 import { loadDeployment } from "./deployment.js";
 import { discoverProvider } from "./provider.js";
-import { TARGET_SCENARIOS, detectScenario } from "./scenarios.js";
+import {
+  MATRIX_TARGET_COUNT,
+  TARGET_SCENARIOS,
+  detectScenario,
+  matrixTargetIndex
+} from "./scenarios.js";
 
 const ERC20_ABI = ["function approve(address spender, uint256 amount) returns (bool)"];
 const root = document.querySelector("#app");
@@ -74,7 +79,7 @@ function render() {
 }
 
 function renderCard(target, index) {
-  const address = state.deployment?.targets?.[index] ?? "";
+  const address = currentTargets()[index] ?? "";
   const isBusy = state.busyIndex === index;
   const enabled = Boolean(state.signer && address && state.busyIndex === null);
 
@@ -107,10 +112,10 @@ function renderCard(target, index) {
 async function initialize() {
   try {
     state.deployment = await loadDeployment();
-    if (state.deployment.targets.length === 6) {
+    if (state.deployment.targets.length === MATRIX_TARGET_COUNT) {
       state.statuses = Array(6).fill("连接钱包后可发起授权");
     } else {
-      state.statuses = Array(6).fill("测试合约尚未部署");
+      state.statuses = Array(6).fill("请先重新部署 36 个测试合约");
     }
   } catch (error) {
     state.error = readableError(error);
@@ -133,9 +138,9 @@ async function connectWallet() {
     const browserProvider = new BrowserProvider(state.injectedProvider, "any");
     state.signer = await browserProvider.getSigner(state.account);
     state.deployment = await loadDeployment(browserProvider);
-    state.statuses = state.deployment.targets.length === 6
+    state.statuses = state.deployment.targets.length === MATRIX_TARGET_COUNT
       ? Array(6).fill("已连接，可发起 0.01 USDC 授权")
-      : Array(6).fill("测试合约尚未部署");
+      : Array(6).fill("请先重新部署 36 个测试合约");
   } catch (error) {
     state.error = readableError(error);
   }
@@ -143,7 +148,7 @@ async function connectWallet() {
 }
 
 async function approve(index) {
-  const address = state.deployment?.targets?.[index];
+  const address = currentTargets()[index];
   if (!state.signer || !address) return;
 
   state.busyIndex = index;
@@ -164,6 +169,13 @@ async function approve(index) {
     state.busyIndex = null;
     render();
   }
+}
+
+function currentTargets() {
+  if (state.deployment?.targets?.length !== MATRIX_TARGET_COUNT) return [];
+  return TARGET_SCENARIOS.map((_, index) => {
+    return state.deployment.targets[matrixTargetIndex(scenario, index)];
+  });
 }
 
 async function copyAddress(button) {
