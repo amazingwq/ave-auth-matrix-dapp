@@ -46,12 +46,21 @@ export function normalizeProvider(provider) {
 }
 
 export function discoverProvider(windowLike = window) {
+  const ethereumProviders = Array.isArray(windowLike.ethereum?.providers)
+    ? windowLike.ethereum.providers.map((provider, index) => [
+        `window.ethereum.providers[${index}]`,
+        provider
+      ])
+    : [];
   const candidates = [
     ["window.ethereum", windowLike.ethereum],
+    ...ethereumProviders,
     ["window.web3.currentProvider", windowLike.web3?.currentProvider],
     ["window.aveEthereum", windowLike.aveEthereum],
     ["window.aveWallet.ethereum", windowLike.aveWallet?.ethereum],
-    ["window.ave.ethereum", windowLike.ave?.ethereum]
+    ["window.ave.ethereum", windowLike.ave?.ethereum],
+    ["window.BinanceChain", windowLike.BinanceChain],
+    ["window.trustwallet", windowLike.trustwallet]
   ];
 
   for (const [label, candidate] of candidates) {
@@ -62,6 +71,22 @@ export function discoverProvider(windowLike = window) {
   }
 
   return { label: "未检测到", provider: null, rawProvider: null };
+}
+
+export async function waitForProvider(windowLike = window, options = {}) {
+  const timeoutMs = options.timeoutMs ?? 4000;
+  const intervalMs = options.intervalMs ?? 120;
+  const startedAt = Date.now();
+  let discovered = discoverProvider(windowLike);
+
+  while (!discovered.provider && Date.now() - startedAt < timeoutMs) {
+    await new Promise((resolve) => {
+      windowLike.setTimeout?.(resolve, intervalMs) ?? setTimeout(resolve, intervalMs);
+    });
+    discovered = discoverProvider(windowLike);
+  }
+
+  return discovered;
 }
 
 export function describeProvider(rawProvider) {

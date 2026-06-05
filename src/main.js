@@ -2,7 +2,7 @@ import { BrowserProvider, Contract, getAddress } from "ethers";
 import "./base.css";
 import { ensureBsc, readableError } from "./chain.js";
 import { loadDeployment } from "./deployment.js";
-import { discoverProvider } from "./provider.js";
+import { discoverProvider, waitForProvider } from "./provider.js";
 import {
   MATRIX_TARGET_COUNT,
   TARGET_SCENARIOS,
@@ -124,14 +124,19 @@ async function initialize() {
 }
 
 async function connectWallet() {
+  state.error = "";
+  render();
+
+  const latestProvider = await waitForProvider(window);
+  state.injectedProvider = latestProvider.provider;
+
   if (!state.injectedProvider) {
-    state.error = "未检测到 Ave 钱包，请在 Ave DApp 浏览器中打开本页面。";
+    state.error = "未检测到钱包 Provider。请确认在 Ave DApp 浏览器中打开本页；如果刚进入页面，请刷新后再点连接。";
     render();
     return;
   }
 
   try {
-    state.error = "";
     const accounts = await state.injectedProvider.request({ method: "eth_requestAccounts" });
     state.account = getAddress(accounts[0]);
     await ensureBsc(state.injectedProvider);
